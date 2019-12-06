@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <style>
+    .pad {
+        padding: 0px 20vw
+    }
+    .tab-content {
+        height: 100%;
+        min-height: 500px;
+        max-height: 500px;
+    }
+    .button {
+        margin: 0px 20px
+    }
+    @media screen and (max-width: 1000px)  {
+        .pad {
+            padding: 0px 0vw
+        }
+
+        .tab-content {
+            height: 100%;
+            min-height: 800px;
+        }
+    }
+    @media screen and (max-width: 500px)  {
+        .button {
+            display: block;
+            margin: 10px auto;
+            min-width: 50%;
+        }
+    }
+      
+    .px-4 {
+        padding: 0px 300px
+    }
+
+    body {
+        background: #eee
+    }
+
+    .card-color {
+        background: white
+    }
+
+    .mt-3 {
+        margin-top: 20px
+    }
+
+    .invisible {
+        display: none
+    }
+
+    .green {
+        background: #00a86b !important
+    }
+
+    .red {
+        background: #da2d2d !important
+    }
+
+    .of-hidden {
+        overflow: hidden;
+    }
+
+    .mhi {
+        max-height: inherit
+    }
+
+    .row {
+        flex-direction: row;
+        display: flex;
+        justify-content: center;
+    }
+    .label {
+        padding: 10px;
+        flex: 4;
+    }
+    .textbox {
+        padding: 10px;
+        flex: 8;
+    }
+
+    .list-item {
+        border-bottom: solid lightgray 1px;
+    }
+  </style>
+  <body>
+    <div class="container" style="text-align: center">
+        <div style="padding: 10px 50px">
+            <h2 class="display-3">Nixie Tube Clock</h2>
+
+            <div class="mdl-grid pad">
+                <div class="mdl-cell mdl-cell--12-col">
+                    <p>Connected to <span id="network" style="font-weight: bold; color: #00a86b"></span></p>
+                    <button id="offButton" onclick="switchMode(null)" class="red mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+                        <i class="material-icons">power_settings_new</i>
+                        Turn off
+                    </button>
+                    <button id="onButton" onclick="switchMode(modes.clock)" class="invisible mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+                        <i class="material-icons">power_settings_new</i>
+                        Turn on
+                    </button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="mt-3 pad">
+            <div class="mdl-shadow--2dp tab-content of-hidden card-color">
+
+                <div id="spinner" style="padding: 50px">
+                    <div class="mdl-spinner mdl-js-spinner is-active"></div>
+                    <p>Connecting to clock...</p>
+                </div>
+
+                <div id="tabs" class="invisible mdl-tabs mdl-js-tabs mdl-js-ripple-effect mhi">
+                    <div class="mdl-tabs__tab-bar">
+                        <a id="clock" href="#clock_" onclick="switchMode(modes.clock)" class="clock mdl-tabs__tab clock">Clock</a>
+                        <a id="stopwatch" href="#stopwatch_" onclick="switchMode(modes.stopwatch)" class="mdl-tabs__tab stopwatch">Stopwatch</a>
+                        <a id="random" href="#random_" onclick="switchMode(modes.random)" class="mdl-tabs__tab random">Random</a>
+                    </div>
+                    
+                    <div class="mdl-tabs__panel is-active clock" style="font-weight: bold" id="clock_">
+                        <div class="row">
+                            <div class="label">
+                                <h6 style="font-weight: bold; text-align: right">Timezone:</h6>
+                            </div>
+                            <div class="textbox">
+                                    <div class="mdl-textfield mdl-js-textfield" style="width:80%">
+                                        <input id="timezoneName" class="mdl-textfield__input" type="text" id="sample">
+                                        <label id="timezoneNameLabel" class="mdl-textfield__label" for="sample">Timezone</label>
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="transform: translateY(-20px)">
+                            <div class="label">
+                                <h6 style="font-weight: bold; text-align: right">UTC Offset (in sec):</h6>
+                            </div>
+                            <div class="textbox">
+                                    <div class="mdl-textfield mdl-js-textfield" style="width: 80%">
+                                        <input id="utcOffset" class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample2">
+                                        <span class="mdl-textfield__error">Input is not a number!</span>
+                                        <label id="utcOffsetLabel" class="mdl-textfield__label" for="sample2">UTC Offset</label>
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="mdl-grid" style="transform: translateY(-30px)">
+                            <div class="mdl-cell mdl-cell--12-col">
+                                <button onclick="clockController.setTimezone()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+                                    <i class="material-icons">check</i>
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mdl-grid" style="transform: translateY(-30px)">
+                            <div class="mdl-cell mdl-cell--12-col" style="text-align: center; color: gray">
+                                <h1 id="time" style="font-size: 500%"></h1>
+                            </div>        
+                        </div>
+                    </div>
+
+                    <div class="mdl-tabs__panel stopwatch mhi" style="overflow: auto" id="stopwatch_">
+                        <div class="mdl-grid">
+                            <div class="mdl-cell mdl-cell--12-col">
+                                <button id="stopwatchStartButton" onclick="stopwatchController.toggle()" class="green button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+                                    <div id="stopwatchStart">
+                                        <i class="material-icons">play_arrow</i>
+                                        Start
+                                    </div>
+                                    <div id="stopwatchPause">
+                                        <i class="material-icons">pause</i>
+                                        Pause
+                                    </div>
+                                </button>
+                            
+                                <button onclick="stopwatchController.round()" class="red button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+                                    <i class="material-icons">add</i>
+                                    Round 
+                                </button>
+                                <button onclick="stopwatchController.reset()" class="mdl-button button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+                                    <i class="material-icons">replay</i>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mdl-grid">
+                            <div class="mdl-cell mdl-cell--12-col">
+                                <div style="height: 10px">
+                                    <div id="stopwatchProgress" style="margin: auto" class="invisible mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+                                </div>
+                                <h5 style="text-align: left; margin-left: 20px">Times</h5>
+                                <ul id="rounds" class="demo-list-icon mdl-list">
+                                        
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="mdl-tabs__panel random" id="random_">
+                        <div class="mdl-grid">
+                            <div class="mdl-cell mdl-cell--12-col">
+                                <button id="stopwatchStartButton" onclick="randomSeed()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+                                    <div id="stopwatchStart">
+                                        <i class="material-icons">casino</i>
+                                        Random Seed
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+
+  <script>
+    let baseUrl = window.location.href
+    baseUrl = baseUrl.substring(0, baseUrl.length-1)
+    let modes = {
+        clock: '.clock',
+        stopwatch: '.stopwatch',
+        random: '.random'
+    }
+    let currentMode = null;
+
+    async function switchMode(mode) {
+        currentMode = mode;
+        if (mode == modes.clock)
+            await fetch(baseUrl + '/switch/clock')
+        else if (mode == modes.stopwatch)
+            await fetch(baseUrl + '/switch/stopwatch')
+        else if (mode == modes.random)
+            await fetch(baseUrl + '/switch/random')
+        else 
+            await fetch(baseUrl + '/switch/off')
+
+        setMode(currentMode);
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        $('.mdl-tabs__tab').removeClass('is-active');
+        $('.mdl-tabs__panel').removeClass('is-active');
+        if ([modes.random, modes.stopwatch, modes.clock].includes(mode)) {
+            $('#onButton').addClass('invisible')
+            $('#offButton').removeClass('invisible')
+            $(mode).addClass('is-active');
+        } else {
+            $('#onButton').removeClass('invisible')
+            $('#offButton').addClass('invisible')
+        }
+    }
+
+    async function randomSeed() {
+        await fetch(baseUrl + '/set/random-seed')
+    }
+
+    function stringToDate(string) {
+        let numbers = string.split(':')
+        let date = new Date();
+        date.setHours(Number(numbers[0]))
+        date.setMinutes(Number(numbers[1]))
+        date.setSeconds(Number(numbers[2]))
+        return date
+    } 
+
+    class ClockController {
+        async refresh() {
+            let response = await fetch(baseUrl + '/timezone')
+            response = await response.json();
+            this.timezoneName = response.name;
+            this.utcOffset = response.utcOffset;
+            $('#timezoneName').val(this.timezoneName);
+            $('#timezoneNameLabel').text('');
+            $('#utcOffset').val(this.utcOffset);
+            $('#utcOffsetLabel').text('');
+
+            response = await fetch(baseUrl + '/time')
+            response = await response.text();
+            this.time = stringToDate(response);
+
+            this.setTimeString();
+            this.interval = setInterval(() => {this.setTimeString()}, 1000);
+        }
+
+        setTimeString() {
+            this.time.setSeconds(this.time.getSeconds() + 1);
+            $('#time').text(this.time.toTimeString().substring(0, 8));
+        }
+
+        async setTimezone() {
+            clearInterval(this.interval);
+            $('#time').text('');
+            await fetch(baseUrl + '/set/timezone/name', {method: 'POST', body: $('#timezoneName').val()})
+            await fetch(baseUrl + '/set/timezone/utcOffset', {method: 'POST', body: $('#utcOffset').val()})
+            this.refresh();
+        }
+    }
+
+    class StopwatchController {
+        rounds = [];
+        running = false;
+
+        async initialize() {
+            this.renderRounds();
+            await fetch(baseUrl + '/stopwatch/stop')
+            await fetch(baseUrl + '/stopwatch/reset')
+        }
+
+        async toggle() {
+            if (!this.running) {
+                await fetch(baseUrl + '/stopwatch/start')
+                $('#stopwatchStart').addClass('invisible');
+                $('#stopwatchProgress').removeClass('invisible');
+                $('#stopwatchPause').removeClass('invisible');
+                $('#stopwatchStartButton').removeClass('green');
+                this.running = true;
+
+            } else {
+                await fetch(baseUrl + '/stopwatch/stop')
+                $('#stopwatchStart').removeClass('invisible');
+                $('#stopwatchProgress').addClass('invisible');
+                $('#stopwatchPause').addClass('invisible');
+                $('#stopwatchStartButton').addClass('green');
+                this.running = false;
+            }
+        }
+
+        async round() {
+            let response = await fetch(baseUrl + '/stopwatch/round')
+            response = await response.text();
+            let date = stringToDate(response);
+            this.rounds.push(date.toTimeString().substring(0, 8))
+            this.renderRounds()
+        }
+
+        async reset() {
+            await fetch(baseUrl + '/stopwatch/reset')
+            this.rounds = [];
+            this.renderRounds()
+        }
+
+        renderRounds() {
+            $('#rounds').empty();
+            for (let round of this.rounds) {
+                $('#rounds').append(`
+                    <li class="mdl-list__item list-item" style="padding: 5px; max-height: 20px">
+                        <span class="mdl-list__item-primary-content">
+                        <i class="material-icons mdl-list__item-icon">access_time</i>`
+                            + round +
+                        `</span>
+                    </li>`)
+            }
+        }
+    }
+
+    let clockController = new ClockController()
+    let stopwatchController = new StopwatchController()
+
+    async function initialize() {
+        let response = await fetch(baseUrl + '/mode');
+        response = await response.text();
+
+        switch (response) {
+            case 'clock':
+                setMode(modes.clock);
+                break;
+            case 'stopwatch':
+                setMode(modes.stopwatch);
+                break;
+            case 'random':
+                setMode(modes.random);
+                break;
+            default:
+                setMode(null);
+                break;
+        }
+
+        response = await fetch(baseUrl + '/network');
+        response = await response.text();
+        $('#network').text(response);
+
+        await clockController.refresh();
+        await stopwatchController.initialize();
+        $('#spinner').toggleClass('invisible');
+        $('#tabs').toggleClass('invisible');
+    }
+
+    $('document').ready(() => {
+        initialize();
+    })
+  </script>
+</html>
+      
