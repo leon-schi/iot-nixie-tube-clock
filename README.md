@@ -24,4 +24,10 @@ where you replace `my-ssid` with the SSID of the Wifi network you want to use an
 
 To compile and upload the program onto the microcontroller run `make` or `make all`. You might need to adjust the `ARCH` and `PORT` variables in the `Makefile` and the `arduino` binary needs to be in your `PATH`.
 
+## Modifying the Web UI
+
+The file `steering.html` defines a web UI that looks like this:
+
+![](./demo.gif)
+
 If you modify the web UI in `steering.html`, run `python3 render.py` before compiling and uploading the sketch. this will render the html into the c++ code so that it can be served.
