@@ -2,6 +2,15 @@
 
 This is the code running in the nixie tube clock I have built. It runs on a ESP8266 module that can arbitrarily control each nixie tube and exposes an API as well as a web-interface to control different functionalities of the clock.
 
+## Required Libraries
+
+For compiling the code, you will need the following libraries:
+
+- ESP8266 add-on for the Arduino IDE
+- [NTP Client](https://github.com/arduino-libraries/NTPClient)
+- [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
+- [Shift Register Writer](https://github.com/leon-schi/shift-register-writer)
+
 ## How to use 
 
 Create a new file named `wifi_credentials.h` with the following content: 
