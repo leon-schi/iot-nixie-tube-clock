@@ -1,6 +1,6 @@
 # IoT Nixie Tube Clock
 
-This is the code running in the nixie tube clock I have built. It runs on a ESP8266 module that can arbitrarily control each nixie tube and exposes an API as well as a web-interface to control different functionalities of the clock.
+This is the code running in the nixie tube clock I have built. Check [https://leon-schi.de/nixie.html](https://leon-schi.de/nixie.html) for more info about the clock. It runs on a ESP8266 module that can arbitrarily control each nixie tube and exposes an API as well as a web-interface to control different functionalities of the clock.
 
 ## Required Libraries
 
